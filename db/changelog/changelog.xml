@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mongodb="http://www.liquibase.org/xml/ns/mongodb"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+        http://www.liquibase.org/xml/ns/mongodb
+        http://www.liquibase.org/xml/ns/mongodb/liquibase-mongodb-latest.xsd">
+
+    <!-- 1. Створення колекції -->
+    <changeSet id="1-create-products" author="egor">
+        <mongodb:createCollection collectionName="products"/>
+        <rollback>
+            <mongodb:dropCollection collectionName="products"/>
+        </rollback>
+    </changeSet>
+
+    <!-- 2. Додавання початкових товарів -->
+    <changeSet id="2-insert-products" author="egor">
+        <mongodb:insertMany collectionName="products">
+            <mongodb:documents>
+                <![CDATA[
+                [
+                  { "name": "Ноутбук Lenovo", "category": "Електроніка", "price": 25000, "stock": 10 },
+                  { "name": "Смартфон Samsung", "category": "Електроніка", "price": 12000, "stock": 20 },
+                  { "name": "Миша Logitech", "category": "Аксесуари", "price": 700, "stock": 30 }
+                ]
+                ]]>
+            </mongodb:documents>
+        </mongodb:insertMany>
+
+        <rollback>
+            <mongodb:runCommand>
+                <mongodb:command>
+                    <![CDATA[
+                    {
+                      "delete": "products",
+                      "deletes": [
+                        { "q": { "name": "Ноутбук Lenovo" }, "limit": 1 },
+                        { "q": { "name": "Смартфон Samsung" }, "limit": 1 },
+                        { "q": { "name": "Миша Logitech" }, "limit": 1 }
+                      ]
+                    }
+                    ]]>
+                </mongodb:command>
+            </mongodb:runCommand>
+        </rollback>
+    </changeSet>
+
+    <!-- 3. Додавання одного товару (для демонстрації rollback) -->
+    <changeSet id="3-add-product" author="egor">
+        <mongodb:insertOne collectionName="products">
+            <mongodb:document>
+                { "name": "PlayStation 5", "category": "Консолі", "price": 23999, "stock": 5 }
+            </mongodb:document>
+        </mongodb:insertOne>
+
+        <rollback>
+            <mongodb:runCommand>
+                <mongodb:command>
+                    <![CDATA[
+                    {
+                      "delete": "products",
+                      "deletes": [
+                        { "q": { "name": "PlayStation 5" }, "limit": 1 }
+                      ]
+                    }
+                    ]]>
+                </mongodb:command>
+            </mongodb:runCommand>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
