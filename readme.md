@@ -20,9 +20,9 @@
 - виконання rollback
 
 ## Команди
-liquibase status
-liquibase update
-liquibase rollbackCount 1
+- liquibase status
+- liquibase update
+- liquibase rollbackCount 1
 
 ## Автор
 Egor Streltsov
